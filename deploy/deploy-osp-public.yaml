@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: osp-public
-  name: ocp-public
+  name: osp-public
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
