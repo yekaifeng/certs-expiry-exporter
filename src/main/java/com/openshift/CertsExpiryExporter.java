@@ -25,11 +25,13 @@ public class CertsExpiryExporter {
     // Define Prometheus Gauges
     static final Gauge certIssuedAtGauge = Gauge.build()
             .name("certutils_certificate_issue_timet")
+            .labelNames("name")
             .help("TLS Certificate issue time in seconds since epoch")
             .register();
 
     static final Gauge certExpiryGauge = Gauge.build()
             .name("certutils_certificate_expiry_time")
+            .labelNames("name")
             .help("TLS Certificate expiry time in seconds since epoch")
             .register();
 
@@ -55,9 +57,11 @@ public class CertsExpiryExporter {
         logger.info("notBefore: " + notBefore);
         logger.info("notAfter: " + notAfter);
 
-        // Convert to seconds since epoch and set the metrics
-        certIssuedAtGauge.set(notBefore.toInstant().getEpochSecond());
-        certExpiryGauge.set(notAfter.toInstant().getEpochSecond());
+        String appName = System.getenv("APP_NAME");
+
+        // Conrt to seconds since epoch and set the metrics
+        certIssuedAtGauge.labels(appName).set(notBefore.toInstant().getEpochSecond());
+        certExpiryGauge.labels(appName).set(notAfter.toInstant().getEpochSecond());
     }
 
     public static void main(String[] args) throws Exception {
