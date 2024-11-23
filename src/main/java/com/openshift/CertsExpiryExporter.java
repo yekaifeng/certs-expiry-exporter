@@ -36,16 +36,22 @@ public class CertsExpiryExporter {
             .register();
 
     public static X509Certificate fetchCertificate(String httpsUrl) throws Exception {
-        URL url = new URL(httpsUrl);
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        conn.connect();
+        try {
+            URL url = new URL(httpsUrl);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
 
-        Certificate[] certs = conn.getServerCertificates();
-        if (certs.length > 0 && certs[0] instanceof X509Certificate) {
-            return (X509Certificate) certs[0];
+            Certificate[] certs = conn.getServerCertificates();
+            if (certs.length > 0 && certs[0] instanceof X509Certificate) {
+                return (X509Certificate) certs[0];
+            }
+
+            throw new RuntimeException("No X509Certificate found on " + httpsUrl);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error fetching certificate", e);
+            System.exit(1);
         }
-
-        throw new RuntimeException("No X509Certificate found on " + httpsUrl);
+        return null;
     }
 
     public static void updateMetrics(String httpsUrl) throws Exception {
@@ -98,3 +104,4 @@ public class CertsExpiryExporter {
         }
     }
 }
+
