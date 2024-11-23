@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: certificate-rule-alerts
+spec:
+  groups:
+  - name: certs-expiry-alerting-rules
+    rules:
+    - alert: PublicCertExpiredSoon
+      annotations:
+        message: OSP Public Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }}) 
+        summary: OSP Public  Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="osp-public"} < 15552000
+      labels:
+        severity: warning
+        resource_type: osp
+    - alert: PublicCertExpiredSoon
+      annotations:
+        message: OSP Public Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+        summary: OSP Public Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="osp-public"} < 7776000
+      labels:
+        severity: critical
+        resource_type: osp
+

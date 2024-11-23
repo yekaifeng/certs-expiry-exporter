@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: osp-public
+  labels:
+    deployment: osp-public
+spec:
+  type: ClusterIP
+  selector:
+    deployment: osp-public
+  ports:
+    - name: metrics
+      port: 8080
+      targetPort: 8080

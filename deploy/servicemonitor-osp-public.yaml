@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    deployment: osp-public
+  name: osp-public
+spec:
+  endpoints:
+    - interval: 30s
+      port: metrics
+      path: /metrics
+      scheme: http
+  selector:
+    matchLabels:
+       deployment: osp-public
