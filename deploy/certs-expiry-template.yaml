@@ -1,0 +1,126 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: certs-expiry-template
+  annotations:
+    description: >-
+      This template is used for setup certificate expiry detect deployment, 
+      service, servie monitor about the certificate expiry.
+    iconClass: icon-docker
+    openshift.io/display-name: certs-expiry
+    openshift.io/documentation-url: 'https://redhat.com/'
+    openshift.io/provider-display-name: 'Red Hat, Inc.'
+    openshift.io/support-url: 'https://access.redhat.com'
+message: >-
+  The following service(s) have been created in your project: certs expiry deployment,
+    service, service monitor.
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: '${APP_NAME}'
+      name: '${APP_NAME}'
+    spec:
+      progressDeadlineSeconds: 600
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        matchLabels:
+          deployment: '${APP_NAME}'
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            deployment: '${APP_NAME}'
+        spec:
+          containers:
+            - env:
+                - name: CHECK_HTTPS_URL
+                  value: '${CHECK_HTTPS_URL}'
+                - name: APP_NAME
+                  value: '${APP_NAME}'
+              image: '${DEPLOYMENT_IMAGE}'
+              imagePullPolicy: IfNotPresent
+              name: '${APP_NAME}'
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 3
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              resources: { }
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: { }
+          terminationGracePeriodSeconds: 30
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: '${APP_NAME}'
+      labels:
+        deployment: '${APP_NAME}'
+    spec:
+      type: ClusterIP
+      selector:
+        deployment: '${APP_NAME}'
+      ports:
+        - name: metrics
+          port: 8080
+          targetPort: 8080
+  - apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: '${APP_NAME}'
+      labels:
+        app: '${APP_NAME}'
+    spec:
+      endpoints:
+        - interval: 30s
+          port: metrics
+          path: /metrics
+          scheme: http
+      selector:
+        matchLabels:
+          deployment: '${APP_NAME}'
+parameters:
+  - name: APP_NAME
+    displayName: Application Name
+    description: Application Name for certificate expiry checking
+    value: 'osp-public'
+    required: true
+  - name: DEPLOYMENT_IMAGE
+    displayName: Server Image
+    description: Deployment Image Address
+    value: 'cert-expiry-exporter:latest'
+    required: true
+  - name: CHECK_HTTPS_URL
+    displayName: Https URL
+    description: Https URL to check certificate expiry
+    value: 'https://localhost'
+    required: true
+

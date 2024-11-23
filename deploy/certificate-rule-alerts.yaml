@@ -24,4 +24,62 @@ spec:
       labels:
         severity: critical
         resource_type: osp
+    - alert: RegistryMirrorCertExpiredSoon
+      annotations:
+        message: Registry Mirror Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+        summary: Registry Mirror Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="registry-mirror"} < 15552000
+      labels:
+        severity: warning
+        resource_type: ocp
+    - alert: RegistryMirrorCertExpiredSoon
+      annotations:
+        message: Registry Mirror has less than 3 months left to expire ({{ $value | humanizeDuration }})
+        summary: Registry Mirror has less than 3 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="registry-mirror"} < 7776000
+      labels:
+        severity: critical
+        resource_type: ocp
+    - alert: ApiServerCertExpiredSoon
+      annotations:
+        message: API Server Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+        summary: API Server Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="external-loadbalancer-serving-certkey"} < 15552000
+      labels:
+        severity: warning
+        resource_type: ocp
+    - alert: ApiServerCertExpiredSoon
+      annotations:
+        message: API Server Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+        summary: API Server Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="external-loadbalancer-serving-certkey"} < 7776000
+      labels:
+        severity: critical
+        resource_type: ocp
+    - alert: IngressRouterExpiredSoon
+      annotations:
+        message: Ingress Router Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+        summary: Ingress Router  Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="router-certs-default"} < 15552000
+      labels:
+        severity: warning
+        resource_type: ocp
+    - alert: IngressRouterExpiredSoon
+      annotations:
+        message: Ingress Router Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+        summary: Ingress Router Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+      expr: |
+        cert:time_to_expiration:sec{name="router-certs-default"} < 7776000
+      labels:
+        severity: critical
+        resource_type: ocp
+
+
+
+
 
