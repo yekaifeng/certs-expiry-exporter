@@ -44,6 +44,8 @@ objects:
                   value: '${CHECK_HTTPS_URL}'
                 - name: APP_NAME
                   value: '${APP_NAME}'
+                - name: AB_JOLOKIA_OFF
+                  value: true
               image: '${DEPLOYMENT_IMAGE}'
               imagePullPolicy: IfNotPresent
               name: '${APP_NAME}'

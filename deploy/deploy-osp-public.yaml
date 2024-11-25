@@ -27,6 +27,8 @@ spec:
           value: https://baidu.com
         - name: APP_NAME
           value: osp-public
+        - name: AB_JOLOKIA_OFF
+          value: true
         image: registry.ocp4.cn/redhat/cert-expiry-exporter:1.1
         imagePullPolicy: IfNotPresent
         name: osp-public
