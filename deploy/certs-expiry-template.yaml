@@ -45,7 +45,7 @@ objects:
                 - name: APP_NAME
                   value: '${APP_NAME}'
                 - name: AB_JOLOKIA_OFF
-                  value: true
+                  value: 'true'
               image: '${DEPLOYMENT_IMAGE}'
               imagePullPolicy: IfNotPresent
               name: '${APP_NAME}'

@@ -10,7 +10,11 @@ This project is used for detect the certificate expiry date and send to the aler
 
 ## How to deployment the application
 - Open the Operator Hub in Web Console. Search for the "Cert Utils Operator" and click on the "Install" button.
-  
+- Run below oc command to label namespace
+```
+oc label ns cert-utils-operator openshift.io/cluster-monitoring="true"
+```
+
 - Silence `CertificateApproachingExpiration` and `CertificateIsAboutToExpire` alerts
 
   * Navigate to the OpenShift Web Console.
@@ -25,7 +29,7 @@ This project is used for detect the certificate expiry date and send to the aler
 - Run the application installation with oc command
 ```
   cd deploy
-  oc new-project cert-expiry
+  oc new-project certs-expiry
   oc label ns certs-expiry openshift.io/cluster-monitoring="true"
   oc adm policy add-role-to-user view system:serviceaccount:openshift-monitoring:prometheus-k8s -n certs-expiry
   oc create -f certificate-rule-alerts.yaml
