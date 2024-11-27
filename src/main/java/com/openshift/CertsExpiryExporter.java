@@ -7,7 +7,9 @@ import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.CertificateException;
+import javax.net.ssl.*;
+import java.net.Socket;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -35,8 +37,40 @@ public class CertsExpiryExporter {
             .help("TLS Certificate expiry time in seconds since epoch")
             .register();
 
+    // Disable SSL certificate validation (WARNING: NOT RECOMMENDED FOR PRODUCTION)
+    static final TrustManager[] trustAllCerts = new TrustManager[]{
+        new X509ExtendedTrustManager() {
+            @Override
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {}
+
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] xcs, String string, Socket socket) throws CertificateException {}
+
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] xcs, String string, Socket socket) throws CertificateException {}
+
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] xcs, String string, SSLEngine ssle) throws CertificateException {}
+
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] xcs, String string, SSLEngine ssle) throws CertificateException {}
+
+        }
+    };
+
     public static X509Certificate fetchCertificate(String httpsUrl) throws Exception {
         try {
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
             URL url = new URL(httpsUrl);
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.connect();
