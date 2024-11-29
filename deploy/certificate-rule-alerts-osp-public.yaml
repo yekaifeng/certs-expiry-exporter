@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: certificate-rule-alerts
+spec:
+  groups:
+  - name: cert-utils-operator-recording-rules
+    rules:
+      - expr: certutils_certificate_expiry_time - certutils_certificate_issue_time
+        record: cert:validity_duration:sec
+      - expr: certutils_certificate_expiry_time - time()
+        record: cert:time_to_expiration:sec
+  - name: ./openstack.rules
+    rules:
+    - alert: PublicCertExpiredSoon
+      annotations:
+        summary: OSP Public Certificate has less than 6 months left to expire ({{ $value | humanizeDuration }})
+        description: The openstack public certificate is about the expired in less than 6 months. Please renew
+          the certificate according to https://docs.redhat.com/en/documentation/red_hat_openstack_platform/17.1/html/hardening_red_hat_openstack_platform/assembly_configuring-custom-ssl-tls-certificates#proc_creating-a-certificate-authority_configuring-custom-ssl-tls-certificates
+      expr: |
+        cert:time_to_expiration:sec{name="osp-public"} < 15552000
+      labels:
+        severity: warning
+        resource_type: osp
+    - alert: PublicCertExpiredSoon
+      annotations:
+        summary: OSP Public Certificate has less than 3 months left to expire ({{ $value | humanizeDuration }})
+        description: The openstack public certificate is about the expired in less than 3 months. Please renew
+          the certificate according to https://docs.redhat.com/en/documentation/red_hat_openstack_platform/17.1/html/hardening_red_hat_openstack_platform/assembly_configuring-custom-ssl-tls-certificates#proc_creating-a-certificate-authority_configuring-custom-ssl-tls-certificates
+      expr: |
+        cert:time_to_expiration:sec{name="osp-public"} < 7776000
+      labels:
+        severity: critical
+        resource_type: osp
+
+
+
+
+
+
